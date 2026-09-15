@@ -1,0 +1,10 @@
+{
+  "mcp": {
+    "ml-stack": {
+      "command": "ml-stack",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"ml-stack/event/1.0","type":"object","required":["event_id","event_type","payload","created_at"],"properties":{"event_id":{"type":"integer"},"event_type":{"type":"string"},"payload":{"type":"object"},"created_at":{"type":"string"},"run_id":{"type":["string","null"]}}}

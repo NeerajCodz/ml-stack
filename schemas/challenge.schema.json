@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"ml-stack/challenge/1.0","type":"object","required":["task_class","deliverables","unknowns"],"properties":{"task_class":{"type":"string"},"deliverables":{"type":"array","items":{"type":"string"}},"unknowns":{"type":"array","items":{"type":"string"}}}}
