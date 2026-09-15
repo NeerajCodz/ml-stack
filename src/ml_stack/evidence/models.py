@@ -45,6 +45,8 @@ class EvidenceRecord:
     title: str = ""
     record_id: str = ""
     schema_version: str = "1.0"
+    source_type: str = "web"
+    retrieval_method: str = "http"
 
     def __post_init__(self) -> None:
         if not self.source_url or not isinstance(self.source_url, str):
@@ -77,6 +79,8 @@ class EvidenceRecord:
         retrieved_at: str | None = None,
         content: str | bytes | None = None,
         title: str = "",
+        source_type: str = "web",
+        retrieval_method: str = "http",
     ) -> "EvidenceRecord":
         content_hash = ""
         if content is not None:
@@ -90,6 +94,8 @@ class EvidenceRecord:
             claim_class=claim_class,
             content_hash=content_hash,
             title=title,
+            source_type=source_type,
+            retrieval_method=retrieval_method,
         )
 
     @property
@@ -118,6 +124,8 @@ class EvidenceRecord:
             "claim_class": self.claim_class,
             "content_hash": self.content_hash,
             "title": self.title,
+            "source_type": self.source_type,
+            "retrieval_method": self.retrieval_method,
         }
         return result
 
@@ -134,6 +142,8 @@ class EvidenceRecord:
             title=str(value.get("title", "")),
             record_id=str(value.get("record_id", "")),
             schema_version=str(value.get("schema_version", "1.0")),
+            source_type=str(value.get("source_type", "web")),
+            retrieval_method=str(value.get("retrieval_method", "http")),
         )
         if record.record_id and record.record_id != record.key:
             raise ValueError("record_id does not match content-addressed identity")

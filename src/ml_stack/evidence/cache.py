@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -172,9 +173,21 @@ class EvidenceCache:
         claim_class: str = "general",
         retrieved_at: str | None = None,
         title: str = "",
+        source_type: str = "web",
+        retrieval_method: str = "http",
     ) -> EvidenceRecord:
         text = content.decode("utf-8", errors="replace") if isinstance(content, bytes) else content
-        record = EvidenceRecord.create(source_url, excerpt if excerpt is not None else text, confidence=confidence, claim_class=claim_class, retrieved_at=retrieved_at, content=content, title=title)
+        record = EvidenceRecord.create(
+            source_url,
+            excerpt if excerpt is not None else text,
+            confidence=confidence,
+            claim_class=claim_class,
+            retrieved_at=retrieved_at,
+            content=content,
+            title=title,
+            source_type=source_type,
+            retrieval_method=retrieval_method,
+        )
         return self.put(record, content)
 
     def get_or_fetch(
@@ -187,14 +200,23 @@ class EvidenceCache:
         confidence: float = 0.5,
         claim_class: str = "general",
         title: str = "",
+        max_age_seconds: float | None = None,
+        source_type: str = "web",
+        retrieval_method: str = "http",
     ) -> EvidenceRecord:
-        """Get cached evidence, or invoke an injected fetcher once online."""
+        """Return fresh cached evidence or fetch once when online.
+
+        ``max_age_seconds`` is opt-in so offline and immutable historical
+        research remain deterministic by default.
+        """
         wanted_hash = _digest(excerpt) if excerpt is not None else None
         candidates = self.find(source_url, excerpt_hash=wanted_hash, claim_class=claim_class)
         if candidates:
-            return candidates[0]
+            newest = candidates[0]
+            if max_age_seconds is None or self.is_fresh(newest, max_age_seconds):
+                return newest
         if offline:
-            raise OfflineCacheMiss(f"no cached evidence for {source_url}")
+            raise OfflineCacheMiss(f"no fresh cached evidence for {source_url}")
         if fetcher is None:
             raise ValueError("fetcher is required for an uncached online lookup")
         result = fetcher(source_url)
@@ -209,11 +231,21 @@ class EvidenceCache:
                     str(result.get("source_url", source_url)), body,
                     excerpt=str(result.get("excerpt", excerpt)) if result.get("excerpt", excerpt) is not None else None,
                     confidence=float(result.get("confidence", confidence)), claim_class=str(result.get("claim_class", claim_class)), title=str(result.get("title", title)),
+                    source_type=str(result.get("source_type", source_type)),
+                    retrieval_method=str(result.get("retrieval_method", retrieval_method)),
                 )
             raise TypeError("mapping fetch results require evidence fields or content")
         if not isinstance(result, (str, bytes)):
             raise TypeError("fetcher must return text, bytes, a mapping, or EvidenceRecord")
-        return self.cache_content(source_url, result, excerpt=excerpt, confidence=confidence, claim_class=claim_class, title=title)
+        return self.cache_content(source_url, result, excerpt=excerpt, confidence=confidence, claim_class=claim_class, title=title, source_type=source_type, retrieval_method=retrieval_method)
+
+    def is_fresh(self, record: EvidenceRecord, max_age_seconds: float) -> bool:
+        if max_age_seconds < 0:
+            raise ValueError("max_age_seconds must be non-negative")
+        retrieved = datetime.fromisoformat(record.retrieved_at.replace("Z", "+00:00"))
+        if retrieved.tzinfo is None:
+            retrieved = retrieved.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - retrieved).total_seconds() <= max_age_seconds
 
     def __len__(self) -> int:
         return sum(1 for _ in self.records_dir.glob("*.json"))

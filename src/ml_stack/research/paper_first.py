@@ -40,15 +40,18 @@ class ResearchRequest:
     limit_per_kind: int = 5
     offline: bool = False
     max_context_chars: int = 24_000
+    max_age_seconds: float | None = None
 
     def __post_init__(self) -> None:
         if not self.query.strip():
-            raise ValueError("research query must not be empty")
+            raise ValueError("research request query must not be empty")
         unknown = set(self.kinds).difference(PAPER_FIRST_KINDS)
         if unknown:
             raise ValueError(f"unsupported paper-first research kinds: {sorted(unknown)}")
         if self.limit_per_kind < 1 or self.max_context_chars < 1:
             raise ValueError("research request limits must be positive")
+        if self.max_age_seconds is not None and self.max_age_seconds < 0:
+            raise ValueError("research max_age_seconds must be non-negative")
 
 
 @dataclass(slots=True)
@@ -66,6 +69,20 @@ class ResearchResult:
 
     def citations(self) -> list[str]:
         return [record.source_url for record in sorted(self.records, key=lambda r: r.key)]
+    def provenance(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "source_url": record.source_url,
+                "retrieved_at": record.retrieved_at,
+                "evidence_hash": record.key,
+                "excerpt_hash": record.excerpt_hash,
+                "confidence": record.confidence,
+                "claim_class": record.claim_class,
+                "source_type": record.source_type,
+                "retrieval_method": record.retrieval_method,
+            }
+            for record in sorted(self.records, key=lambda r: r.key)
+        ]
 
 
 class PaperFirstResearch:
@@ -84,12 +101,14 @@ class PaperFirstResearch:
         limit_per_kind: int = 5,
         offline: bool = False,
         notebook_path: str | None = None,
+        max_age_seconds: float | None = None,
     ) -> ResearchResult:
         request = query if isinstance(query, ResearchRequest) else ResearchRequest(
             query=query,
             kinds=tuple(kinds or PAPER_FIRST_KINDS),
             limit_per_kind=limit_per_kind,
             offline=offline,
+            max_age_seconds=max_age_seconds,
         )
         source = adapter or self.adapter
         if not request.offline and source is None:
@@ -110,7 +129,7 @@ class PaperFirstResearch:
             else:
                 references = list(source.search(kind, request.query, request.limit_per_kind))  # type: ignore[union-attr]
                 for reference in references:
-                    record = self._materialize(reference, kind, source, request.offline)
+                    record = self._materialize(reference, kind, source, request.offline, request.max_age_seconds)
                     if record is not None:
                         kind_records.append(record)
             ids: list[str] = []
@@ -120,6 +139,18 @@ class PaperFirstResearch:
             by_kind[kind] = ids
         result = ResearchResult(request.query, list(records.values()), by_kind, request.offline)
         result.records.sort(key=lambda r: r.key)
+        if request.max_context_chars:
+            bounded: list[EvidenceRecord] = []
+            used = 0
+            for record in result.records:
+                size = len(record.excerpt)
+                if used + size > request.max_context_chars:
+                    continue
+                bounded.append(record)
+                used += size
+            kept = {record.key for record in bounded}
+            result.records = bounded
+            result.by_kind = {kind: [key for key in ids if key in kept] for kind, ids in result.by_kind.items()}
         if notebook_path is not None:
             result.write_notebook(notebook_path)
         return result
@@ -152,7 +183,7 @@ class PaperFirstResearch:
     def dataset(self, query: str, **kwargs: Any) -> ResearchResult:
         return self.collect(query, kinds=("dataset",), **kwargs)
 
-    def _materialize(self, reference: Any, kind: str, source: ResearchAdapter, offline: bool) -> EvidenceRecord | None:
+    def _materialize(self, reference: Any, kind: str, source: ResearchAdapter, offline: bool, max_age_seconds: float | None = None) -> EvidenceRecord | None:
         if isinstance(reference, EvidenceRecord):
             return self.cache.put(reference)
         if isinstance(reference, str):
@@ -161,6 +192,7 @@ class PaperFirstResearch:
                 source.fetch,
                 offline=offline,
                 claim_class=f"paper.{kind}",
+                max_age_seconds=max_age_seconds,
             )
             return fetched
         if not isinstance(reference, Mapping):
@@ -172,15 +204,15 @@ class PaperFirstResearch:
         excerpt = reference.get("excerpt")
         title = str(reference.get("title", ""))
         confidence = float(reference.get("confidence", 0.5))
+        source_type = str(reference.get("source_type", "web"))
+        retrieval_method = str(reference.get("retrieval_method", "adapter"))
         if content is not None:
-            return self.cache.cache_content(url, content, excerpt=str(excerpt) if excerpt is not None else None, confidence=confidence, claim_class=f"paper.{kind}", title=title)
+            return self.cache.cache_content(url, content, excerpt=str(excerpt) if excerpt is not None else None, confidence=confidence, claim_class=f"paper.{kind}", title=title, source_type=source_type, retrieval_method=retrieval_method)
         if excerpt is not None:
-            # A search hit with no body is still usable evidence; fetch only if
-            # the adapter is online and the cache has no matching hit.
             existing = self.cache.find(url, excerpt_hash=_hash(str(excerpt)), claim_class=f"paper.{kind}")
-            if existing:
+            if existing and (max_age_seconds is None or self.cache.is_fresh(existing[0], max_age_seconds)):
                 return existing[0]
-        return self.cache.get_or_fetch(url, source.fetch, offline=offline, excerpt=str(excerpt) if excerpt is not None else None, confidence=confidence, claim_class=f"paper.{kind}", title=title)
+        return self.cache.get_or_fetch(url, source.fetch, offline=offline, excerpt=str(excerpt) if excerpt is not None else None, confidence=confidence, claim_class=f"paper.{kind}", title=title, max_age_seconds=max_age_seconds, source_type=source_type, retrieval_method=retrieval_method)
 
 
 def _hash(value: str) -> str:
