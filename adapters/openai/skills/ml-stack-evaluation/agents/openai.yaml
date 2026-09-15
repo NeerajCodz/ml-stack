@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Evaluation",
+    "short_description": "Use ml-stack-evaluation for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-evaluation to run the ML Stack ml-stack-evaluation workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

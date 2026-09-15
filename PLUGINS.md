@@ -1,16 +1,21 @@
 # ML Stack plugins and host installation
 
-ML Stack is a portable coding-agent plugin package. It contains four Agent Skills and one local stdio MCP server:
+ML Stack is a portable coding-agent plugin package. It contains twelve focused Agent Skills and one local stdio MCP server:
 
-- Skills: `ml-stack`, `ml-stack-research`, `ml-stack-experiment`, and `ml-stack-audit`.
+- Skills: `ml-stack` (orchestration), `ml-stack-research` (evidence), `ml-stack-data` (datasets), `ml-stack-model` (model choice), `ml-stack-training` (training design), `ml-stack-experiment` (isolated runs), `ml-stack-evaluation` (quality gates), `ml-stack-tracking` (run diagnostics), `ml-stack-compute` (resource routing), `ml-stack-deployment` (serving release), `ml-stack-hub` (artifact lifecycle), and `ml-stack-audit` (independent release audit).
 - MCP server: `ml-stack mcp`.
 - Python/Jupyter API: optional; no agent host is required for direct Python use.
 
-The canonical skill sources are under `skills-src/`. Host packages under `adapters/` are generated artifacts. Regenerate them after changing a skill or the adapter generator:
+The canonical authored skill sources are under `skills/`. Host packages under `adapters/` are generated artifacts and never a second source of truth. Each skill keeps routing metadata in `SKILL.md` and progressive detail in `references/`; regenerate them after changing a skill or the adapter generator:
 
 ```bash
 python -c "from ml_stack.adapters import generate; print(generate())"
 ```
+
+Only seven MCP operations are currently executable: `ml_stack.status`, `ml_stack.init`, `ml_stack.discover`, `ml_stack.audit_data`, `ml_stack.capture_requirements`, `ml_stack.research`, and `ml_stack.events`. Training, jobs, benchmarks, tracking providers, deployment, Hub writes, and publication produce bounded plans/handoffs until a matching runtime operation exists.
+
+Workflow provenance and upstream capability sources are recorded in [skills/ml-stack/references/sources.md](skills/ml-stack/references/sources.md).
+
 
 ## Prerequisite: install the runtime
 
@@ -50,18 +55,22 @@ The portable Agent Plugins files are deliberately different from Claude's `.mcp.
 
 Claude Code loads a local plugin directory directly:
 
-```bash
-claude --plugin-dir ./adapters/claude
-```
-
-The generated plugin has the required Claude layout: `.claude-plugin/plugin.json` at the plugin root, with `skills/` and `.mcp.json` beside it. Skills are namespaced by the plugin name:
-
 ```text
 /ml-stack:ml-stack
 /ml-stack:ml-stack-research
+/ml-stack:ml-stack-data
+/ml-stack:ml-stack-model
+/ml-stack:ml-stack-training
 /ml-stack:ml-stack-experiment
+/ml-stack:ml-stack-evaluation
+/ml-stack:ml-stack-tracking
+/ml-stack:ml-stack-compute
+/ml-stack:ml-stack-deployment
+/ml-stack:ml-stack-hub
 /ml-stack:ml-stack-audit
 ```
+
+The generated plugin has the required Claude layout: `.claude-plugin/plugin.json` at the plugin root, with `skills/` and `.mcp.json` beside it. Skills are namespaced by the plugin name.
 
 The bundled MCP server starts as `ml-stack mcp`. Check it from another terminal with:
 
@@ -148,7 +157,6 @@ Merge the generated `adapters/opencode/opencode.json` `mcp.ml-stack` object into
 {
   "mcp": {
     "ml-stack": {
-      "type": "local",
       "command": ["ml-stack", "mcp"],
       "enabled": true
     }
@@ -156,7 +164,7 @@ Merge the generated `adapters/opencode/opencode.json` `mcp.ml-stack` object into
 }
 ```
 
-OpenCode discovers the four skills from `.opencode/skills/<name>/SKILL.md`. Ask OpenCode to use a skill by its name; Claude's `/ml-stack:<name>` namespace is not an OpenCode command.
+OpenCode discovers the twelve skills from `.opencode/skills/<name>/SKILL.md`. Ask OpenCode to use a skill by its name; Claude's `/ml-stack:<name>` namespace is not an OpenCode command.
 ## OMP / Oh My Pi
 
 OMP has both a native project layout and an installable plugin layout. Use the

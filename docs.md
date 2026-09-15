@@ -65,10 +65,14 @@ pandas or execute notebook cells.
 
 ## Coding-agent plugins
 
-ML Stack is distributed as a portable plugin plus individually configured
-native host adapters. Claude Code uses `adapters/claude/`, Codex and ChatGPT
-use `adapters/openai/`, OpenCode uses `adapters/opencode/`, OMP uses
-`adapters/omp/` or `adapters/omp-plugin/`, and Cursor, Cline, Windsurf,
-Gemini CLI, GitHub Copilot, and VS Code each have their own adapter directory.
-See [PLUGINS.md](PLUGINS.md) for installation, marketplace setup, skill invocation,
-and MCP registration details.
+ML Stack is distributed as a portable plugin plus individually configured native host adapters. The canonical authored skill tree is `skills/`; `adapters/` contains generated copies. Twelve focused skills cover the ML lifecycle: orchestration, research, data, model choice, training, isolated experiments, evaluation, tracking, compute, deployment, Hub artifacts, and independent audit.
+
+Each skill has a concise `SKILL.md` for routing and on-demand `references/` for detailed contracts. The registry currently exposes only seven executable `ml_stack.*` operations. Advanced training, jobs, evaluation backends, tracking providers, deployment, Hub writes, and publication are represented as bounded plans/handoffs until equivalent runtime operations exist.
+
+Regenerate every host layout with:
+
+```bash
+python -c "from ml_stack.adapters import generate; print(generate())"
+```
+
+See [PLUGINS.md](PLUGINS.md) for installation and [the source map](skills/ml-stack/references/sources.md) for Vercel Agent Skills, Vercel `find-skills`, the Vercel AI SDK skill, pinned ML Intern, and maintained Hugging Face skill sources.

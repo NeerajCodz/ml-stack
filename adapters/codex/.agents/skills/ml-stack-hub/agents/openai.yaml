@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Hub",
+    "short_description": "Use ml-stack-hub for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-hub to run the ML Stack ml-stack-hub workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

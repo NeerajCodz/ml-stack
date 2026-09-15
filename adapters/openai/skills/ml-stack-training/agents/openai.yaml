@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Training",
+    "short_description": "Use ml-stack-training for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-training to run the ML Stack ml-stack-training workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

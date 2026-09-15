@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Compute",
+    "short_description": "Use ml-stack-compute for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-compute to run the ML Stack ml-stack-compute workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

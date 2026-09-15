@@ -51,3 +51,16 @@ installation guide in [PLUGINS.md](PLUGINS.md). Generated packages are under
 ```bash
 python -c "from ml_stack.adapters import generate; print(generate())"
 ```
+
+## Skill catalog
+
+The canonical authored source is `skills/`; generated host packages under `adapters/` are derived outputs. The twelve skills cover orchestration, research, data, model choice, training, isolated experiments, evaluation, tracking, compute, deployment, Hub artifacts, and independent audit. Each concise `SKILL.md` links to on-demand `references/` for progressive disclosure.
+
+The runtime currently executes only the seven registered `ml_stack.*` operations; advanced training, evaluation, job, tracking, deployment, and publication requests produce bounded plans or handoffs unless a matching operation is added. Regenerate all host layouts after source changes:
+
+```bash
+python -c "from ml_stack.adapters import generate; print(generate())"
+```
+
+Upstream capability references and pinned commits are recorded in
+[`skills/ml-stack/references/sources.md`](skills/ml-stack/references/sources.md).

@@ -4,7 +4,20 @@ import json
 import shutil
 from pathlib import Path
 
-SKILLS = ("ml-stack", "ml-stack-research", "ml-stack-experiment", "ml-stack-audit")
+SKILLS = (
+    "ml-stack",
+    "ml-stack-research",
+    "ml-stack-data",
+    "ml-stack-model",
+    "ml-stack-training",
+    "ml-stack-experiment",
+    "ml-stack-evaluation",
+    "ml-stack-tracking",
+    "ml-stack-compute",
+    "ml-stack-deployment",
+    "ml-stack-hub",
+    "ml-stack-audit",
+)
 PLUGIN_NAME = "ml-stack"
 PLUGIN_VERSION = "0.2.0"
 PLUGIN_DESCRIPTION = "Requirements-driven ML research, experiments, validation, and evidence audit for coding agents."
@@ -22,8 +35,7 @@ def _write(path: Path, payload: dict) -> None:
 def _copy_skills(source: Path, destination: Path, *, openai_overlay: bool = False) -> None:
     for skill in SKILLS:
         target = destination / skill
-        target.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source / skill / "SKILL.md", target / "SKILL.md")
+        shutil.copytree(source / skill, target, dirs_exist_ok=True)
         if openai_overlay:
             _write(target / "agents" / "openai.yaml", {
                 "interface": {
@@ -92,7 +104,7 @@ def _clean(output: Path) -> None:
             shutil.rmtree(path)
 
 
-def generate(source: str | Path = "skills-src", output: str | Path = "adapters") -> dict[str, str]:
+def generate(source: str | Path = "skills", output: str | Path = "adapters") -> dict[str, str]:
     """Generate individually configured host packages from canonical skills."""
     source, output = Path(source), Path(output)
     output.mkdir(parents=True, exist_ok=True)

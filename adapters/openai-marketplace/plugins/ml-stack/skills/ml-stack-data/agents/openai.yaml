@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Data",
+    "short_description": "Use ml-stack-data for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-data to run the ML Stack ml-stack-data workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

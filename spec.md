@@ -2749,7 +2749,7 @@ Do not maintain four manually diverging versions of the ML workflow.
 Canonical representation:
 
 ```text
-skills-src/
+skills/
   ml-stack.md
   research.md
   experiment.md
@@ -6976,7 +6976,7 @@ ML-Stack follows the gstack-style idea of one repository containing a capability
 Canonical content lives once:
 
 ```text
-skills-src/
+skills/
 tools/
 core/
 providers/
@@ -7582,7 +7582,7 @@ ml-stack/
 │   ├── mcp/
 │   ├── daemon/
 │   └── cli/
-├── skills-src/
+├── skills/
 ├── adapters/
 │   ├── claude-code/
 │   ├── codex/

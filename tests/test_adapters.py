@@ -4,7 +4,35 @@ from pathlib import Path
 from ml_stack.adapters import generate
 
 
-SKILLS = ("ml-stack", "ml-stack-research", "ml-stack-experiment", "ml-stack-audit")
+SKILLS = (
+    "ml-stack",
+    "ml-stack-research",
+    "ml-stack-data",
+    "ml-stack-model",
+    "ml-stack-training",
+    "ml-stack-experiment",
+    "ml-stack-evaluation",
+    "ml-stack-tracking",
+    "ml-stack-compute",
+    "ml-stack-deployment",
+    "ml-stack-hub",
+    "ml-stack-audit",
+)
+NATIVE_SKILL_ROOTS = (
+    "generic/skills",
+    "openai/skills",
+    "codex/.agents/skills",
+    "claude/skills",
+    "opencode/.opencode/skills",
+    "omp/.omp/skills",
+    "omp-plugin/skills",
+    "cursor/.cursor/skills",
+    "cline/.cline/skills",
+    "windsurf/.windsurf/skills",
+    "gemini/.gemini/skills",
+    "github-copilot/.github/skills",
+    "vscode/.github/skills",
+)
 
 
 def read_json(path: Path) -> dict:
@@ -14,7 +42,7 @@ def read_json(path: Path) -> dict:
 def test_generate_emits_portable_and_host_native_packages(tmp_path):
     root = Path(__file__).resolve().parents[1]
     output = tmp_path / "adapters"
-    result = generate(root / "skills-src", output)
+    result = generate(root / "skills", output)
 
     portable = output / "openai"
     manifest = read_json(portable / "plugin.json")
@@ -23,6 +51,11 @@ def test_generate_emits_portable_and_host_native_packages(tmp_path):
     assert read_json(portable / "mcp.json")["$schema"].endswith("/mcp.schema.json")
     assert read_json(portable / "mcp.json")["mcpServers"]["ml-stack"]["type"] == "stdio"
     assert all((portable / "skills" / skill / "SKILL.md").is_file() for skill in SKILLS)
+    assert (portable / "skills" / "ml-stack" / "references" / "lifecycle.md").is_file()
+    for skill_root in NATIVE_SKILL_ROOTS:
+        root_path = output / skill_root
+        assert all((root_path / skill / "SKILL.md").is_file() for skill in SKILLS)
+        assert (root_path / "ml-stack" / "references" / "lifecycle.md").is_file()
 
     claude = output / "claude"
     assert read_json(claude / ".claude-plugin" / "plugin.json")["version"] == "0.2.0"
