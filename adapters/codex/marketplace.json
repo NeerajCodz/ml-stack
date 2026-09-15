@@ -1,8 +1,12 @@
 {
-  "skills": [
-    "ml-stack",
-    "ml-stack-research",
-    "ml-stack-experiment",
-    "ml-stack-audit"
+  "name": "ml-stack-local",
+  "plugins": [
+    {
+      "name": "ml-stack",
+      "source": {
+        "source": "local",
+        "path": "../openai"
+      }
+    }
   ]
 }

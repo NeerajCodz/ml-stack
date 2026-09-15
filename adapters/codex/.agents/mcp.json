@@ -1,6 +1,8 @@
 {
-  "servers": {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
     "ml-stack": {
+      "type": "stdio",
       "command": "ml-stack",
       "args": [
         "mcp"

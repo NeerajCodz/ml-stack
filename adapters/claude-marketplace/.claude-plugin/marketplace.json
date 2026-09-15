@@ -1,0 +1,13 @@
+{
+  "name": "ml-stack-local",
+  "owner": {
+    "name": "ML Stack contributors",
+    "url": "https://github.com/NeerajCodz/ml-stack"
+  },
+  "plugins": [
+    {
+      "name": "ml-stack",
+      "source": "./plugins/ml-stack"
+    }
+  ]
+}

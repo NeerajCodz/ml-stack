@@ -1,0 +1,21 @@
+{
+  "name": "ml-stack-local",
+  "plugins": [
+    {
+      "name": "ml-stack",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ml-stack"
+      },
+      "interface": {
+        "displayName": "ML Stack",
+        "shortDescription": "Requirements-driven ML research, experiments, validation, and evidence audit for coding agents."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer tools"
+    }
+  ]
+}

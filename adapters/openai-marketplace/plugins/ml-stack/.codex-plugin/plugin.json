@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ml-stack",
+  "version": "0.2.0",
+  "description": "Requirements-driven ML research, experiments, validation, and evidence audit for coding agents.",
+  "author": {
+    "name": "ML Stack contributors",
+    "url": "https://github.com/NeerajCodz/ml-stack"
+  },
+  "homepage": "https://github.com/NeerajCodz/ml-stack",
+  "repository": "https://github.com/NeerajCodz/ml-stack",
+  "license": "MIT",
+  "keywords": [
+    "machine-learning",
+    "research",
+    "experiments",
+    "mcp",
+    "agents"
+  ],
+  "extensions": {
+    "com.openai": {
+      "display_name": "ML Stack",
+      "category": "Developer tools"
+    }
+  },
+  "skills": "./skills/",
+  "mcp": "./mcp.json"
+}

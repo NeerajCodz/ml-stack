@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Research",
+    "short_description": "Use ml-stack-research for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-research to run the ML Stack ml-stack-research workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

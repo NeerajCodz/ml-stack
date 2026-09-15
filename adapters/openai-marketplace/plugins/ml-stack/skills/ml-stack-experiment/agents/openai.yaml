@@ -1,0 +1,10 @@
+{
+  "interface": {
+    "display_name": "Ml Stack Experiment",
+    "short_description": "Use ml-stack-experiment for the ML Stack workflow.",
+    "default_prompt": "Use $ml-stack-experiment to run the ML Stack ml-stack-experiment workflow."
+  },
+  "policy": {
+    "allow_implicit_invocation": true
+  }
+}

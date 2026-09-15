@@ -62,3 +62,12 @@ The core package writes valid nbformat v4 notebooks without requiring Jupyter. I
 `to_arrow()`, and `to_numpy()` are available when the corresponding optional
 libraries are installed. Dataset loading remains lazy; auditing does not import
 pandas or execute notebook cells.
+
+## Coding-agent plugins
+
+ML Stack is distributed as a portable plugin plus native host adapters. Claude
+Code uses `adapters/claude/`, Codex and ChatGPT local marketplaces use
+`adapters/openai/`, OpenCode uses `adapters/opencode/`, and generic
+Agent Skills/MCP hosts use `adapters/generic/`. See
+[PLUGINS.md](PLUGINS.md) for installation, marketplace setup, skill invocation,
+and MCP registration details.
