@@ -13,7 +13,7 @@ def serve(registry: Registry, stdin=None, stdout=None) -> None:
 
 def dispatch(registry: Registry, request: dict):
     method = request.get("method"); rid = request.get("id")
-    if method == "initialize": result = {"protocolVersion":"2025-06-18","capabilities":{"tools":{}},"serverInfo":{"name":"ml-stack","version":"0.1.0"}}
+    if method == "initialize": result = {"protocolVersion":"2025-06-18","capabilities":{"tools":{}},"serverInfo":{"name":"ml-stack","version":"0.2.0"}}
     elif method == "notifications/initialized": return {"jsonrpc":"2.0","id":rid,"result":{}}
     elif method == "tools/list": result = {"tools": registry.list_tools()}
     elif method == "tools/call":

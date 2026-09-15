@@ -4,12 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ml-stack"
-version = "0.1.0"
+version = "0.2.0"
 description = "Portable requirements-driven ML research and experiment runtime"
 requires-python = ">=3.10"
 readme = "README.md"
 license = {file = "LICENSE"}
 dependencies = []
+
+[project.optional-dependencies]
+notebook = ["jupyter>=1.0", "nbformat>=5.10", "ipython>=8.0"]
+data = ["pandas>=2.0", "numpy>=1.24", "polars>=0.20"]
+full = ["jupyter>=1.0", "nbformat>=5.10", "ipython>=8.0", "pandas>=2.0", "numpy>=1.24", "polars>=0.20", "pyarrow>=14.0"]
 
 [project.scripts]
 ml-stack = "ml_stack.cli:main"

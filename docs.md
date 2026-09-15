@@ -35,3 +35,30 @@ Example:
   }
 }
 ```
+
+## Python and Jupyter access
+
+The runtime is directly importable; no MCP host is required:
+
+```python
+from ml_stack import ResearchClient
+from ml_stack.research import read_ipynb
+
+client = ResearchClient.open(".")
+result = client.research(
+    "vision transformer transfer learning",
+    kinds=("anchor", "recent", "code", "dataset"),
+    limit=3,
+    max_age_seconds=86_400,
+    ipynb_path="research/vision-transformers.ipynb",
+)
+print(result.provenance())
+```
+
+Install optional integrations with `python -m pip install --editable '.[notebook,data]'`.
+The core package writes valid nbformat v4 notebooks without requiring Jupyter. If
+`pandas` is installed, `client.dataset("data.csv").to_pandas()` and
+`client.evidence_dataframe(result)` return DataFrames. `to_polars()`,
+`to_arrow()`, and `to_numpy()` are available when the corresponding optional
+libraries are installed. Dataset loading remains lazy; auditing does not import
+pandas or execute notebook cells.
