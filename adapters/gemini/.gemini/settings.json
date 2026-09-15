@@ -1,0 +1,14 @@
+{
+  "skills": {
+    "enabled": true,
+    "disabled": []
+  },
+  "mcpServers": {
+    "ml-stack": {
+      "command": "ml-stack",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}

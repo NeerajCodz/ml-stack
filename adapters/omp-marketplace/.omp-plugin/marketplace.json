@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ml-stack-local",
+  "owner": {
+    "name": "ML Stack contributors",
+    "url": "https://github.com/NeerajCodz/ml-stack"
+  },
+  "metadata": {
+    "description": "Requirements-driven ML research, experiments, validation, and evidence audit for coding agents.",
+    "version": "0.2.0",
+    "pluginRoot": "plugins"
+  },
+  "plugins": [
+    {
+      "name": "ml-stack",
+      "description": "Requirements-driven ML research, experiments, validation, and evidence audit for coding agents.",
+      "source": "./ml-stack",
+      "version": "0.2.0"
+    }
+  ]
+}

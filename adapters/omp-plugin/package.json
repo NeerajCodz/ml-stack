@@ -1,0 +1,8 @@
+{
+  "name": "ml-stack-omp",
+  "version": "0.2.0",
+  "description": "Requirements-driven ML research, experiments, validation, and evidence audit for coding agents.",
+  "license": "MIT",
+  "repository": "https://github.com/NeerajCodz/ml-stack",
+  "omp": {}
+}

@@ -40,3 +40,19 @@ def test_generate_emits_portable_and_host_native_packages(tmp_path):
     assert entry["source"]["path"] == "./plugins/ml-stack"
     assert (marketplace.parent.parent.parent / "plugins" / "ml-stack" / "plugin.json").is_file()
     assert result["openai_marketplace"].endswith("openai-marketplace")
+
+    omp = output / "omp"
+    assert all((omp / ".omp" / "skills" / skill / "SKILL.md").is_file() for skill in SKILLS)
+    assert read_json(omp / ".omp" / "mcp.json")["mcpServers"]["ml-stack"]["enabled"] is True
+
+    omp_plugin = output / "omp-plugin"
+    assert read_json(omp_plugin / "package.json")["omp"] == {}
+    assert read_json(omp_plugin / ".mcp.json")["$schema"].endswith("mcp-schema.json")
+
+    assert (output / "cursor" / ".cursor" / "skills" / "ml-stack" / "SKILL.md").is_file()
+    assert "mcpServers" in read_json(output / "cursor" / ".cursor" / "mcp.json")
+    assert read_json(output / "cline" / ".cline" / "mcp.json")["mcpServers"]["ml-stack"]["autoApprove"] == []
+    assert "mcpServers" in read_json(output / "windsurf" / "mcp_config.json")
+    assert read_json(output / "gemini" / ".gemini" / "settings.json")["skills"]["enabled"] is True
+    assert (output / "github-copilot" / ".github" / "skills" / "ml-stack" / "SKILL.md").is_file()
+    assert "servers" in read_json(output / "vscode" / ".vscode" / "mcp.json")

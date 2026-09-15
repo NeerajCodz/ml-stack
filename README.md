@@ -41,9 +41,10 @@ The same workflow is available through `ml_stack.research` MCP and `ml-stack res
 
 ## Coding-agent plugins
 
-This project is also a portable plugin for Claude Code, Codex, ChatGPT local
-marketplaces, OpenCode, and other MCP/Agent Skills hosts. Install the runtime
-with `python -m pip install --editable .`, then follow the complete host-specific
+This project is also a portable plugin for Claude Code, Codex, ChatGPT,
+OpenCode, OMP/Oh My Pi, Cursor, Cline, Windsurf, Gemini CLI, GitHub Copilot,
+VS Code Agent, and other MCP/Agent Skills hosts.
+Install the runtime with `python -m pip install --editable .`, then follow the complete host-specific
 installation guide in [PLUGINS.md](PLUGINS.md). Generated packages are under
 `adapters/`; regenerate them with:
 

@@ -26,13 +26,20 @@ Use a virtual environment when possible. The generated MCP configurations intent
 
 ## Generated packages
 
-| Package | Host | Contents |
-| --- | --- | --- |
 | `adapters/openai/` | Portable Agent Plugins, Codex, and ChatGPT local marketplaces | Root `plugin.json`, root `mcp.json`, `skills/`, OpenAI skill overlays, and `.codex-plugin/plugin.json` compatibility metadata. |
 | `adapters/claude/` | Claude Code | `.claude-plugin/plugin.json`, `skills/`, and `.mcp.json`. |
 | `adapters/claude-marketplace/` | Claude Code local marketplace | A marketplace catalog pointing at the generated Claude plugin. |
 | `adapters/codex/` | Direct Codex project setup | `.agents/skills/`, a portable MCP fragment, and a local marketplace example. |
 | `adapters/opencode/` | OpenCode | `.opencode/skills/` and a native `opencode.json` MCP entry. |
+| `adapters/omp/` | OMP native project setup | `.omp/skills/` and `.omp/mcp.json`. |
+| `adapters/omp-plugin/` | OMP installable plugin package | `package.json` with `omp` metadata, `skills/`, and `.mcp.json`. |
+| `adapters/omp-marketplace/` | OMP local marketplace | `.omp-plugin/marketplace.json` and an installable plugin copy. |
+| `adapters/cursor/` | Cursor | `.cursor/skills/` and `.cursor/mcp.json`. |
+| `adapters/cline/` | Cline | `.cline/skills/` and `.cline/mcp.json`. |
+| `adapters/windsurf/` | Windsurf Cascade | `.windsurf/skills/` and a native `mcp_config.json` fragment. |
+| `adapters/gemini/` | Gemini CLI | `.gemini/skills/` and `.gemini/settings.json`. |
+| `adapters/github-copilot/` | GitHub Copilot | `.github/skills/`; MCP must be configured on the Copilot/IDE surface. |
+| `adapters/vscode/` | VS Code Agent/Copilot | `.github/skills/` and `.vscode/mcp.json`. |
 | `adapters/generic/` | Other Agent Skills-compatible hosts | Portable `plugin.json`, `mcp.json`, and `skills/`. |
 
 The portable Agent Plugins files are deliberately different from Claude's `.mcp.json` and OpenCode's `opencode.json`. Do not rename one host's configuration and expect another host to parse it.
@@ -150,6 +157,130 @@ Merge the generated `adapters/opencode/opencode.json` `mcp.ml-stack` object into
 ```
 
 OpenCode discovers the four skills from `.opencode/skills/<name>/SKILL.md`. Ask OpenCode to use a skill by its name; Claude's `/ml-stack:<name>` namespace is not an OpenCode command.
+## OMP / Oh My Pi
+
+OMP has both a native project layout and an installable plugin layout. Use the
+native adapter when configuring one repository:
+
+```bash
+mkdir -p .omp/skills
+cp -R adapters/omp/.omp/skills/. .omp/skills/
+cp adapters/omp/.omp/mcp.json .omp/mcp.json
+omp mcp list
+```
+
+On Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force .omp\skills | Out-Null
+Copy-Item -Recurse -Force adapters\omp\.omp\skills\* .omp\skills\
+Copy-Item -Force adapters\omp\.omp\mcp.json .omp\mcp.json
+omp mcp list
+```
+
+For OMP plugin installation, add the generated local marketplace and install
+the project plugin:
+
+```bash
+omp plugin marketplace add ./adapters/omp-marketplace
+omp plugin install --scope project ml-stack@ml-stack-local
+omp plugin list
+```
+
+OMP discovers skills from `.omp/skills/<name>/SKILL.md` and native MCP servers
+from `.omp/mcp.json`. Invoke a skill with `/skill:ml-stack-research`. The
+generated OMP MCP file uses OMP's own schema and keeps the server enabled
+without sharing secrets.
+
+## Cursor
+
+Copy the native Cursor adapter into the repository:
+
+```bash
+mkdir -p .cursor/skills
+cp -R adapters/cursor/.cursor/skills/. .cursor/skills/
+cp adapters/cursor/.cursor/mcp.json .cursor/mcp.json
+```
+
+Cursor discovers `.cursor/skills/<name>/SKILL.md` and reads the
+`mcpServers.ml-stack` entry from `.cursor/mcp.json`. Use `/ml-stack-research`
+or let Cursor select the skill from its description.
+
+## Cline
+
+Use the project-scoped Cline adapter:
+
+```bash
+mkdir -p .cline/skills
+cp -R adapters/cline/.cline/skills/. .cline/skills/
+cp adapters/cline/.cline/mcp.json .cline/mcp.json
+```
+
+Enable Skills in Cline's feature settings, then use the Cline MCP panel or
+`cline mcp` to inspect the `ml-stack` server. The Cline-specific MCP fields
+(`disabled` and `autoApprove`) are intentionally emitted instead of reusing
+Claude or Codex configuration.
+
+## Windsurf Cascade
+
+Copy the workspace skills:
+
+```bash
+mkdir -p .windsurf/skills
+cp -R adapters/windsurf/.windsurf/skills/. .windsurf/skills/
+```
+
+Windsurf's legacy Cascade MCP configuration is user-scoped. Merge
+`adapters/windsurf/mcp_config.json` into
+`~/.codeium/windsurf/mcp_config.json`, or use **Cascade → MCPs**. Do not
+overwrite other servers in that file. Invoke a skill with `@ml-stack-research`
+or let Cascade select it by description.
+
+## Gemini CLI
+
+Copy the project skills and merge the generated settings:
+
+```bash
+mkdir -p .gemini/skills
+cp -R adapters/gemini/.gemini/skills/. .gemini/skills/
+```
+
+Merge `adapters/gemini/.gemini/settings.json` into the project's
+`.gemini/settings.json`; preserve unrelated settings. The generated file
+enables Skills and registers `mcpServers.ml-stack`. Verify with:
+
+```bash
+gemini skills list --all
+gemini mcp list
+```
+
+## GitHub Copilot and VS Code
+
+GitHub Copilot's portable repository skill location is `.github/skills/`:
+
+```bash
+mkdir -p .github/skills
+cp -R adapters/github-copilot/.github/skills/. .github/skills/
+```
+
+GitHub Copilot cloud agent and code review use repository-configured MCP
+tools; they do not launch this local stdio command. Use a public HTTPS MCP
+deployment for those surfaces. Copilot CLI and IDE surfaces can use a local
+MCP connection where their host allows it.
+
+For VS Code Agent/Copilot, copy the same skills and merge the workspace MCP
+configuration:
+
+```bash
+cp -R adapters/vscode/.github/skills/. .github/skills/
+mkdir -p .vscode
+cp adapters/vscode/.vscode/mcp.json .vscode/mcp.json
+```
+
+VS Code workspace MCP uses a top-level `servers` object, unlike portable
+Agent Plugins and Claude's `mcpServers` object. Keep the generated shape when
+editing `.vscode/mcp.json`.
+
 
 ## Other coding agents and generic MCP clients
 
@@ -161,6 +292,21 @@ Use `adapters/generic/` when the host supports the Agent Skills convention and a
 4. If the host has its own MCP configuration, translate only the server entry: executable `ml-stack`, argument `mcp`, stdio transport. Keep host-specific keys and schemas.
 
 Do not assume slash-command syntax is portable. Skills, MCP, Python, and Jupyter are separate integration surfaces; use the host's documented skill invocation and MCP registration commands.
+
+## Official host references
+
+These adapters follow the host-native contracts current at generation time:
+
+- [Agent Plugins](https://developers.openai.com/plugins/build/plugins) and [MCP schema](https://agent-plugins.org/schemas/1.0.0/mcp.schema.json)
+- [Claude Code plugins](https://code.claude.com/docs/en/plugins), [Claude discovery](https://code.claude.com/docs/en/discover-plugins), and [Claude MCP](https://code.claude.com/docs/en/mcp)
+- [OpenCode plugins](https://opencode.ai/v2/docs/plugins), [skills](https://opencode.ai/v2/docs/skills), and [MCP](https://opencode.ai/v2/docs/mcp-servers)
+- [OMP skills](https://github.com/can1357/oh-my-pi/blob/main/docs/skills.md), [OMP plugins](https://github.com/can1357/oh-my-pi/blob/main/docs/plugin-manager-installer-plumbing.md), and [OMP MCP](https://github.com/can1357/oh-my-pi/blob/main/docs/mcp-config.md)
+- [Cursor skills](https://prod.cursor.com/docs/skills) and [Cursor MCP](https://prod.cursor.com/docs/mcp)
+- [Cline skills](https://docs.cline.bot/customization/skills) and [Cline MCP](https://docs.cline.bot/mcp/mcp-overview)
+- [Windsurf skills](https://docs.windsurf.com/windsurf/cascade/skills) and [Windsurf MCP](https://docs.windsurf.com/windsurf/cascade/mcp)
+- [Gemini CLI skills](https://geminicli.com/docs/cli/skills/) and [Gemini MCP](https://geminicli.com/docs/tools/mcp-server/)
+- [GitHub Copilot agent skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
+- [VS Code agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills), [agent plugins](https://code.visualstudio.com/docs/agent-customization/agent-plugins), and [MCP](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)
 
 ## Verification
 

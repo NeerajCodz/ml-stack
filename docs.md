@@ -65,9 +65,10 @@ pandas or execute notebook cells.
 
 ## Coding-agent plugins
 
-ML Stack is distributed as a portable plugin plus native host adapters. Claude
-Code uses `adapters/claude/`, Codex and ChatGPT local marketplaces use
-`adapters/openai/`, OpenCode uses `adapters/opencode/`, and generic
-Agent Skills/MCP hosts use `adapters/generic/`. See
-[PLUGINS.md](PLUGINS.md) for installation, marketplace setup, skill invocation,
+ML Stack is distributed as a portable plugin plus individually configured
+native host adapters. Claude Code uses `adapters/claude/`, Codex and ChatGPT
+use `adapters/openai/`, OpenCode uses `adapters/opencode/`, OMP uses
+`adapters/omp/` or `adapters/omp-plugin/`, and Cursor, Cline, Windsurf,
+Gemini CLI, GitHub Copilot, and VS Code each have their own adapter directory.
+See [PLUGINS.md](PLUGINS.md) for installation, marketplace setup, skill invocation,
 and MCP registration details.
